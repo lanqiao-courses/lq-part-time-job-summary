@@ -1,0 +1,53 @@
+name: Doc Check
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  schedule:
+    - cron: '0 18 * * *'  # TimeZone: UTC 0
+
+concurrency:
+  group: dlc-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  Check-Dead-Links:
+    name: Dead Link Checker
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v3
+      - run: sudo npm install -g markdown-link-check@3.10.0
+      - run: |
+          for file in $(find . -name "*.md"); do
+            markdown-link-check -c .dlc.json -q "$file"
+          done
+
+  Chinse-Copywriting-lint:
+    name: Chinese Copywriting
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Check Chinese copywriting
+        uses: huacnlee/autocorrect-action@main
+        with:
+          args: autocorrect --lint --no-diff-bg-color ./**/*.md
+
+  Markdown-Lint:
+    name: Markdown Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - name: Use Node.js
+        uses: actions/setup-node@v2.4.0
+        with:
+          node-version: '12.x'
+      - run: npm install -g markdownlint-cli@0.25.0
+      - run: markdownlint '**/*.md' --config ./.github/.markdownlint.yml

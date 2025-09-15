@@ -1,0 +1,17 @@
+name: 章节跟踪文档
+description: 阐述章节信息
+title: "[章节名称][章节 ID] 文章标题"
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请根据章节内容规划填写下述信息。
+
+  - type: textarea
+    attributes:
+      label: 章节内容描述
+
+  - type: textarea
+    attributes:
+      label: 本节内容所使用的技术栈
